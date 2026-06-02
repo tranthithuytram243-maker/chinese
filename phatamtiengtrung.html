@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Luyện Phát Âm Tiếng Trung</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 50px; background: #f4f7f6; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; }
+        .hanzi { font-size: 80px; color: #2c3e50; margin: 0; }
+        .pinyin { font-size: 24px; color: #7f8c8d; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; transition: 0.3s; margin: 5px; }
+        .btn-listen { background: #3498db; color: white; }
+        .btn-speak { background: #e74c3c; color: white; }
+        #result { margin-top: 20px; font-weight: bold; font-size: 1.2em; }
+        .success { color: #27ae60; }
+        .error { color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <p class="hanzi">你好</p>
+        <p class="pinyin">nǐ hǎo</p>
+        
+        <button class="btn-listen" onclick="speakSample()">1. Nghe mẫu</button>
+        <button class="btn-speak" onclick="startRecognition()">2. Nhấn để đọc</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const targetText = "你好"; // Văn bản mục tiêu
+
+        // 1. Hàm phát âm mẫu (Text-to-Speech)
+        function speakSample() {
+            const msg = new SpeechSynthesisUtterance(targetText);
+            msg.lang = 'zh-CN'; // Thiết lập tiếng Trung (Phổ thông)
+            msg.rate = 0.8;    // Tốc độ đọc hơi chậm để dễ nghe
+            window.speechSynthesis.speak(msg);
+        }
+
+        // 2. Hàm nhận diện giọng nói (Speech Recognition)
+        function startRecognition() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "Đang nghe... 🎤";
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'zh-CN';
+
+            recognition.onresult = function(event) {
+                const userSpeech = event.results[0][0].transcript;
+                resultDiv.innerHTML = `Bạn đã đọc: <span style="color: #34495e">"${userSpeech}"</span><br>`;
+                
+                if (userSpeech === targetText) {
+                    resultDiv.innerHTML += `<span class="success">Chính xác! Tuyệt vời.</span>`;
+                } else {
+                    resultDiv.innerHTML += `<span class="error">Chưa khớp lắm, thử lại nhé!</span>`;
+                }
+            };
+
+            recognition.onerror = function() {
+                resultDiv.innerHTML = "Có lỗi xảy ra hoặc bạn chưa cho phép dùng Micro.";
+            };
+
+            recognition.start();
+        }
+    </script>
+</body>
+</html>
